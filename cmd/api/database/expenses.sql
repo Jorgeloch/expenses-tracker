@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS expenses (
+  id SERIAL PRIMARY KEY,
+  value DECIMAL(10, 2) NOT NULL,
+  date DATE NOT NULL,
+  owner_id UUID NOT NULL,
+  debtor_id INTEGER,
+  card_id INTEGER NOT NULL,
+  FOREIGN KEY(owner_id) REFERENCES owners(id)
+  FOREIGN KEY (debtor_id) REFERENCES users (id) ON DELETE CASCADE,
+  FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE,
+);
