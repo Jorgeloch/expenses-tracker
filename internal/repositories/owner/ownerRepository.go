@@ -24,7 +24,7 @@ func (r *Repository) GetAll() ([]ownerModel.Owner, error) {
 	var owners []ownerModel.Owner
 	for rows.Next() {
 		var owner ownerModel.Owner
-		err := rows.Scan(&owner.ID, &owner.Name)
+		err := rows.Scan(&owner.ID, &owner.Name, &owner.Email, &owner.Password)
 		if err != nil {
 			return nil, err
 		}
@@ -51,14 +51,16 @@ func (r *Repository) GetByID(id int) (ownerModel.Owner, error) {
 
 func (r *Repository) Create(owner ownerModel.Owner) error {
 	args := pgx.NamedArgs{
-		"id":   owner.ID,
-		"name": owner.Name,
+		"id":       owner.ID,
+		"name":     owner.Name,
+		"email":    owner.Email,
+		"password": owner.Password,
 	}
 
 	_, err := r.DB.Exec(context.Background(),
 		`
-    INSERT INTO owners (id, name)
-    VALUES (@id, @name)
+    INSERT INTO owners (id, name, email, password)
+    VALUES (@id, @name, @email, @password)
     `,
 		args)
 

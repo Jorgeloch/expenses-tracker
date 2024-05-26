@@ -16,9 +16,10 @@ type Handler struct {
 	Validate *validator.Validate
 }
 
-func Init(s *service.Service) *Handler {
+func Init(s *service.Service, v *validator.Validate) *Handler {
 	return &Handler{
-		Service: s,
+		Service:  s,
+		Validate: v,
 	}
 }
 
