@@ -2,8 +2,10 @@ package ownerService
 
 import (
 	"github.com/google/uuid"
-	"github.com/jorgeloch/expenses-tracker/cmd/api/models/owner"
+	ownerDTO "github.com/jorgeloch/expenses-tracker/internal/dto/owner"
+	"github.com/jorgeloch/expenses-tracker/internal/models/owner"
 	repository "github.com/jorgeloch/expenses-tracker/internal/repositories"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service struct {
@@ -24,8 +26,27 @@ func (s *Service) GetByID(id int) (ownerModel.Owner, error) {
 	return s.Repository.OwnerRepository.GetByID(id)
 }
 
-func (s *Service) Create(user ownerModel.Owner) (uuid.UUID, error) {
-	return s.Repository.OwnerRepository.Create(user)
+func (s *Service) Create(dto ownerDTO.CreateOwnerDTO) (uuid.UUID, error) {
+	password, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	location := uuid.New()
+
+	err = s.Repository.OwnerRepository.Create(ownerModel.Owner{
+		ID:       location,
+		Email:    dto.Email,
+		Name:     dto.Name,
+		Password: string(password),
+	})
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	return location, nil
 }
 
 func (s *Service) Update(user ownerModel.Owner) error {

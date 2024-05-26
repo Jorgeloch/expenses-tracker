@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
-	"github.com/jorgeloch/expenses-tracker/cmd/api/handlers"
+	"github.com/jorgeloch/expenses-tracker/internal/handlers"
 	repository "github.com/jorgeloch/expenses-tracker/internal/repositories"
 	service "github.com/jorgeloch/expenses-tracker/internal/services"
 )
@@ -26,11 +26,11 @@ func main() {
 	service := service.Init(repository)
 	handler := handlers.Init(service)
 
-	mux.HandleFunc("/owner", handler.OwnerHandler.GetUsers).Methods("GET")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.GetUserByID).Methods("GET")
-	mux.HandleFunc("/owner", handler.OwnerHandler.CreateUser).Methods("POST")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.UpdateUser).Methods("PATCH")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.DeleteUser).Methods("DELETE")
+	mux.HandleFunc("/owner", handler.OwnerHandler.GetAll).Methods("GET")
+	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.GetByID).Methods("GET")
+	mux.HandleFunc("/owner", handler.OwnerHandler.Create).Methods("POST")
+	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.Update).Methods("PATCH")
+	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.Delete).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }

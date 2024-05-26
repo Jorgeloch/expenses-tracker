@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/jorgeloch/expenses-tracker/cmd/api/handlers/owner"
+	"github.com/jorgeloch/expenses-tracker/internal/handlers/owner"
 	service "github.com/jorgeloch/expenses-tracker/internal/services"
 )
 
