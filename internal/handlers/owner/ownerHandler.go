@@ -3,9 +3,9 @@ package ownerHandler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	ownerDTO "github.com/jorgeloch/expenses-tracker/internal/dto/owner"
 	service "github.com/jorgeloch/expenses-tracker/internal/services"
@@ -38,8 +38,9 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	// get the id from the url
 	params := mux.Vars(r)
 	// convert the id to int
-	id, err := strconv.Atoi(params["id"])
-	if err != nil {
+	id := params["id"]
+
+	if err := uuid.Validate(id); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -77,16 +78,56 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(location)
 }
 
-func (u *Handler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// get the id from the url
+	params := mux.Vars(r)
+
+	id := params["id"]
+	if err := uuid.Validate(id); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// get the owner from the request body
+	var dto ownerDTO.UpdateOwnerDTO
+
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// validate the owner
+	err = h.Validate.Struct(dto)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// call the service method updateowner
+	owner, err := h.Service.OwnerService.Update(id, dto)
 	// return the updated owner in a json format
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(owner)
 }
 
-func (u *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// get the id from the url
+	params := mux.Vars(r)
+
+	id := params["id"]
+	if err := uuid.Validate(id); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// call the service method deleteowner
+	err := h.Service.OwnerService.Delete(id)
 	// return a message in a json format
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

@@ -33,14 +33,14 @@ func (r *Repository) GetAll() ([]ownerModel.Owner, error) {
 	return owners, nil
 }
 
-func (r *Repository) GetByID(id int) (ownerModel.Owner, error) {
+func (r *Repository) GetByID(id string) (ownerModel.Owner, error) {
 	var owner ownerModel.Owner
 
 	err := r.DB.QueryRow(context.Background(),
 		`
     SELECT * FROM owners
     WHERE id=$1
-    `, id).Scan(&owner.ID, &owner.Name)
+    `, id).Scan(&owner.ID, &owner.Name, &owner.Email, &owner.Password)
 
 	if err != nil {
 		return owner, err
@@ -69,14 +69,16 @@ func (r *Repository) Create(owner ownerModel.Owner) error {
 
 func (r *Repository) Update(owner ownerModel.Owner) error {
 	args := pgx.NamedArgs{
-		"id":   owner.ID,
-		"name": owner.Name,
+		"id":       owner.ID,
+		"name":     owner.Name,
+		"email":    owner.Email,
+		"password": owner.Password,
 	}
 	_, err := r.DB.Exec(context.Background(),
 		`
     UPDATE owners
-    SET name=@ownerName
-    WHERE id=@ownerID
+    SET name=@name, email=@email, password=@password
+    WHERE id=@id
     `,
 		args)
 	if err != nil {
@@ -85,7 +87,7 @@ func (r *Repository) Update(owner ownerModel.Owner) error {
 	return nil
 }
 
-func (r *Repository) Delete(id int) error {
+func (r *Repository) Delete(id string) error {
 	_, err := r.DB.Exec(context.Background(),
 		`
     DELETE FROM owners WHERE id=$1

@@ -27,10 +27,10 @@ func main() {
 	handler := handlers.Init(service)
 
 	mux.HandleFunc("/owner", handler.OwnerHandler.GetAll).Methods("GET")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.GetByID).Methods("GET")
+	mux.HandleFunc("/owner/{id}", handler.OwnerHandler.GetByID).Methods("GET")
 	mux.HandleFunc("/owner", handler.OwnerHandler.Create).Methods("POST")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.Update).Methods("PATCH")
-	mux.HandleFunc("/owner/{id:[0-9]+}", handler.OwnerHandler.Delete).Methods("DELETE")
+	mux.HandleFunc("/owner/{id}", handler.OwnerHandler.Update).Methods("PATCH")
+	mux.HandleFunc("/owner/{id}", handler.OwnerHandler.Delete).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
