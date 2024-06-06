@@ -83,6 +83,7 @@ func (r *Repository) Update(card cardModel.Card) error {
     UPDATE cards
     SET name=@name, flag=@flag, owner_id=@owner_id
     WHERE id=@id
+    AND owner_id=@owner_id
     `,
 		args)
 	if err != nil {
