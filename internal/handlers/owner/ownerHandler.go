@@ -34,6 +34,32 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(owners)
 }
 
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	var dto ownerDTO.LoginDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := h.Validate.Struct(dto); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	tokenString, err := h.Service.OwnerService.Login(dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: tokenString,
+	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	// get the id from the url
 	params := mux.Vars(r)

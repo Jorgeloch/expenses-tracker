@@ -49,6 +49,22 @@ func (r *Repository) GetByID(id string) (ownerModel.Owner, error) {
 	return owner, err
 }
 
+func (r *Repository) GetByEmail(email string) (ownerModel.Owner, error) {
+	var owner ownerModel.Owner
+
+	err := r.DB.QueryRow(context.Background(),
+		`
+    SELECT * FROM owners
+    WHERE email=$1
+    `, email).Scan(&owner.ID, &owner.Name, &owner.Email, &owner.Password)
+
+	if err != nil {
+		return owner, err
+	}
+
+	return owner, err
+}
+
 func (r *Repository) Create(owner ownerModel.Owner) error {
 	args := pgx.NamedArgs{
 		"id":       owner.ID,

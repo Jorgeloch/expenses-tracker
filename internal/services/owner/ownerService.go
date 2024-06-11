@@ -1,6 +1,11 @@
 package ownerService
 
 import (
+	"errors"
+	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	ownerDTO "github.com/jorgeloch/expenses-tracker/internal/dto/owner"
 	"github.com/jorgeloch/expenses-tracker/internal/models/owner"
@@ -24,6 +29,10 @@ func (s *Service) GetAll() ([]ownerModel.Owner, error) {
 
 func (s *Service) GetByID(id string) (ownerModel.Owner, error) {
 	return s.Repository.OwnerRepository.GetByID(id)
+}
+
+func (s *Service) GetByEmail(email string) (ownerModel.Owner, error) {
+	return s.Repository.OwnerRepository.GetByEmail(email)
 }
 
 func (s *Service) Create(dto ownerDTO.CreateOwnerDTO) (uuid.UUID, error) {
@@ -74,6 +83,33 @@ func (s *Service) Update(id string, dto ownerDTO.UpdateOwnerDTO) (ownerModel.Own
 	}
 
 	return owner, s.Repository.OwnerRepository.Update(owner)
+}
+
+func (s *Service) Login(dto ownerDTO.LoginDTO) (string, error) {
+	owner, err := s.GetByEmail(dto.Email)
+	if owner.ID == uuid.Nil {
+		return "", errors.New("User not found")
+	}
+	if err != nil {
+		return "", err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(owner.Password), []byte(dto.Password))
+	if err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  owner.ID,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
 func (s *Service) Delete(id string) error {
