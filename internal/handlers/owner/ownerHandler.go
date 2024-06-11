@@ -53,8 +53,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:  "token",
-		Value: tokenString,
+		Name:     "token",
+		Value:    tokenString,
+		HttpOnly: true,
 	})
 
 	w.WriteHeader(http.StatusOK)
