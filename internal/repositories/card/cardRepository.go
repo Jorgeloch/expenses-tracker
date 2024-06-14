@@ -44,7 +44,7 @@ func (r *Repository) GetByID(ownerID string, id string) (cardModel.Card, error) 
     SELECT * FROM cards
     WHERE id=$1
     AND owner_id=$2
-    `, id, ownerID).Scan(&card.ID, &card.Name, &card.Flag, &card.OwnerID)
+    `, id, ownerID).Scan(&card.ID, &card.Name, &card.Flag, &card.DayOfClosing, &card.OwnerID)
 
 	if err != nil {
 		return cardModel.Card{}, err
@@ -55,16 +55,17 @@ func (r *Repository) GetByID(ownerID string, id string) (cardModel.Card, error) 
 
 func (r *Repository) Create(card cardModel.Card) error {
 	args := pgx.NamedArgs{
-		"id":       card.ID,
-		"name":     card.Name,
-		"flag":     card.Flag,
-		"owner_id": card.OwnerID,
+		"id":             card.ID,
+		"name":           card.Name,
+		"flag":           card.Flag,
+		"day_of_closing": card.DayOfClosing,
+		"owner_id":       card.OwnerID,
 	}
 
 	_, err := r.DB.Exec(context.Background(),
 		`
-    INSERT INTO cards (id, name, flag, owner_id)
-    VALUES (@id, @name, @flag, @owner_id)
+    INSERT INTO cards (id, name, flag, day_of_closing, owner_id)
+    VALUES (@id, @name, @flag, @day_of_closing, @owner_id)
     `,
 		args)
 
@@ -73,15 +74,16 @@ func (r *Repository) Create(card cardModel.Card) error {
 
 func (r *Repository) Update(card cardModel.Card) error {
 	args := pgx.NamedArgs{
-		"id":       card.ID,
-		"name":     card.Name,
-		"flag":     card.Flag,
-		"owner_id": card.OwnerID,
+		"id":             card.ID,
+		"name":           card.Name,
+		"flag":           card.Flag,
+		"day_of_closing": card.DayOfClosing,
+		"owner_id":       card.OwnerID,
 	}
 	_, err := r.DB.Exec(context.Background(),
 		`
     UPDATE cards
-    SET name=@name, flag=@flag, owner_id=@owner_id
+    SET name=@name, flag=@flag, owner_id=@owner_id, day_of_closing=@day_of_closing
     WHERE id=@id
     AND owner_id=@owner_id
     `,
