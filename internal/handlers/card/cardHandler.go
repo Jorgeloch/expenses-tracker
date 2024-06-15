@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	cardDTO "github.com/jorgeloch/expenses-tracker/internal/dto/card"
 	service "github.com/jorgeloch/expenses-tracker/internal/services"
@@ -24,7 +25,10 @@ func Init(s *service.Service, v *validator.Validate) *Handler {
 }
 
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
-	ownerID := r.URL.Query().Get("owner_id")
+	// get the owner id
+	ownerID := context.Get(r, "owner_id").(string)
+
+	// get all the cards from the owner
 	cards, err := h.Service.CardService.GetAll(ownerID)
 
 	if err != nil {
@@ -37,11 +41,10 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	// get the owner id
-	ownerID := r.URL.Query().Get("owner_id")
+	ownerID := context.Get(r, "owner_id").(string)
 
 	// get the id from the url
 	params := mux.Vars(r)
-	// convert the id to int
 	id := params["id"]
 
 	if err := uuid.Validate(id); err != nil {
@@ -59,7 +62,9 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	ownerID := r.URL.Query().Get("owner_id")
+	// get the owner id
+	ownerID := context.Get(r, "owner_id").(string)
+
 	// get the owner from the request body
 	var dto cardDTO.CreateCardDTO
 
@@ -88,7 +93,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	ownerID := r.URL.Query().Get("owner_id")
+	// get the owner id
+	ownerID := context.Get(r, "owner_id").(string)
 
 	// get the id from the url
 	params := mux.Vars(r)
@@ -125,7 +131,8 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	ownerID := r.URL.Query().Get("owner_id")
+	// get the owner id
+	ownerID := context.Get(r, "owner_id").(string)
 
 	// get the id from the url
 	params := mux.Vars(r)
