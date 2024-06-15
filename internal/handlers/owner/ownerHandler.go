@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	ownerDTO "github.com/jorgeloch/expenses-tracker/internal/dto/owner"
 	service "github.com/jorgeloch/expenses-tracker/internal/services"
@@ -62,13 +63,20 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+	owner_id := context.Get(r, "owner_id")
+
 	// get the id from the url
 	params := mux.Vars(r)
+
 	// convert the id to int
 	id := params["id"]
-
 	if err := uuid.Validate(id); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if owner_id != id {
+		http.Error(w, "You are not allowed to see this owner", http.StatusUnauthorized)
 		return
 	}
 	// call the service method GetownerByID
@@ -106,12 +114,19 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	owner_id := context.Get(r, "owner_id")
+
 	// get the id from the url
 	params := mux.Vars(r)
 
 	id := params["id"]
 	if err := uuid.Validate(id); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if owner_id != id {
+		http.Error(w, "You are not allowed to update this owner", http.StatusUnauthorized)
 		return
 	}
 	// get the owner from the request body
@@ -141,12 +156,19 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	owner_id := context.Get(r, "owner_id")
+
 	// get the id from the url
 	params := mux.Vars(r)
 
 	id := params["id"]
 	if err := uuid.Validate(id); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if owner_id != id {
+		http.Error(w, "You are not allowed to delete this owner", http.StatusUnauthorized)
 		return
 	}
 	// call the service method deleteowner
