@@ -50,7 +50,6 @@ func ValidateToken(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		log.Println(claims["id"])
 		context.Set(r, "owner_id", claims["id"])
 
 		next.ServeHTTP(w, r)
