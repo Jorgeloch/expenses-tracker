@@ -27,7 +27,7 @@ func (r *Repository) GetAll(ownerID string) ([]cardModel.Card, error) {
 	var cards []cardModel.Card
 	for rows.Next() {
 		var card cardModel.Card
-		err := rows.Scan(&card.ID, &card.Name, &card.Flag, &card.OwnerID)
+		err := rows.Scan(&card.ID, &card.Name, &card.Flag, &card.OwnerID, &card.DayOfClosing)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +44,7 @@ func (r *Repository) GetByID(ownerID string, id string) (cardModel.Card, error) 
     SELECT * FROM cards
     WHERE id=$1
     AND owner_id=$2
-    `, id, ownerID).Scan(&card.ID, &card.Name, &card.Flag, &card.DayOfClosing, &card.OwnerID)
+    `, id, ownerID).Scan(&card.ID, &card.Name, &card.Flag, &card.OwnerID, &card.DayOfClosing)
 
 	if err != nil {
 		return cardModel.Card{}, err

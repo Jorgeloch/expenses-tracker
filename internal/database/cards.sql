@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS cards (
   name VARCHAR(50) NOT NULL,
   flag VARCHAR(20) NOT NULL,
   owner_id UUID NOT NULL,
+  day_of_closing INTEGER NOT NULL,
   FOREIGN KEY(owner_id) REFERENCES owners(id) ON DELETE CASCADE
 )
